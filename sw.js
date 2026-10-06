@@ -1,6 +1,6 @@
 // Service Worker: macht die App offline nutzbar.
 // Bei jeder Änderung an der App VERSION erhöhen, damit iPhones die neue Fassung laden.
-const VERSION = "2026-10-06.1";
+const VERSION = "2026-10-06.2";
 const KERN = `leitlinien-kern-${VERSION}`;
 const ZUSATZ = "leitlinien-zusatz"; // Schriften, CMaps, WASM von pdf.js (bei Bedarf geladen)
 const LISTE = "leitlinien-versionsliste";

@@ -64,12 +64,16 @@ export async function kvSetzen(k, v) {
   return setzen("kv", { k, v });
 }
 
-/** Speichert ein neues Dokument vollständig in einer Transaktion (alles oder nichts). */
-export async function dokumentSpeichern(meta, blob, seiten) {
+/**
+ * Speichert ein neues Dokument vollständig in einer Transaktion (alles oder nichts).
+ * Das PDF wird als ArrayBuffer abgelegt: Blobs in IndexedDB sind in Safari/WebKit
+ * immer wieder fehleranfällig gewesen, ArrayBuffer funktionieren überall.
+ */
+export async function dokumentSpeichern(meta, daten, seiten) {
   const db = await oeffnen();
   return new Promise((resolve, reject) => {
     const tx = db.transaction(["dokumente", "pdfs", "texte"], "readwrite");
-    tx.objectStore("pdfs").put({ id: meta.id, blob });
+    tx.objectStore("pdfs").put({ id: meta.id, daten });
     tx.objectStore("texte").put({ id: meta.id, seiten });
     tx.objectStore("dokumente").put(meta);
     tx.oncomplete = () => resolve();

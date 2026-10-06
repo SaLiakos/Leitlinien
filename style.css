@@ -518,6 +518,17 @@ mark {
   padding: 10px 0;
 }
 
+.technik {
+  display: block;
+  margin-top: 3px;
+  font-size: 12px;
+  line-height: 1.35;
+  color: var(--tinte-3);
+  overflow-wrap: anywhere;
+}
+
+.technik-abstand { margin-top: 14px; }
+
 .hinweis-text {
   font-size: 15px;
   color: var(--tinte-2);

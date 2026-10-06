@@ -6,6 +6,8 @@ import { versionenLaden, abgleichen, neuOnline, STATUS, fingerabdruck, dateiname
 
 // ---------- Hilfen ----------
 
+const APP_VERSION = "2026-10-06.2";
+
 const $ = (s) => document.querySelector(s);
 
 function h(tag, eig, ...kinder) {
@@ -327,6 +329,7 @@ function fusszeile() {
     if ((v.quellen || []).some((q) => !q.ok)) zeilen.push("Die letzte Prüfung war unvollständig, die vorherigen Angaben bleiben gültig.");
     if (zustand.versionenOffline) zeilen.push("Offline – es gilt der zuletzt geladene Stand.");
   }
+  zeilen.push(`App-Version ${APP_VERSION}`);
   if (zustand.dokumente.size) {
     let seiten = 0, bytes = 0;
     for (const m of zustand.dokumente.values()) { seiten += m.seiten || 0; bytes += m.groesse || 0; }
@@ -446,11 +449,14 @@ async function importieren(dateien) {
   for (let i = 0; i < liste.length; i++) {
     const datei = liste[i];
     anzeige.stand(i, datei.name, 0, 0);
+    let schritt = "Datei lesen";
     try {
       const buffer = await datei.arrayBuffer();
+      schritt = "Prüfsumme";
       const id = await sha256(buffer);
       if (zustand.dokumente.has(id) || imStapel.has(id)) { doppelt++; continue; }
       imStapel.add(id);
+      schritt = "PDF auswerten";
       const { seiten, titel } = await textAuslesen(buffer, (s, n) => anzeige.stand(i, datei.name, s, n));
       const zeichen = seiten.reduce((summe, s) => summe + s.length, 0);
       const meta = {
@@ -464,14 +470,16 @@ async function importieren(dateien) {
         hinzugefuegt: new Date().toISOString(),
         dateiDatum: datei.lastModified ? new Date(datei.lastModified).toISOString() : null,
       };
-      await db.dokumentSpeichern(meta, new Blob([buffer], { type: "application/pdf" }), seiten);
+      schritt = "Speichern";
+      await db.dokumentSpeichern(meta, buffer, seiten);
       zustand.dokumente.set(id, meta);
       zustand.index.set(id, { anzeige: seiten, norm: seiten.map(falte), titelNorm: "" });
       neu++;
       if (zeichen < 40 * Math.max(1, seiten.length)) ohneText.push(datei.name);
     } catch (e) {
       console.error(datei.name, e);
-      fehler.push({ name: datei.name, grund: fehlerText(e) });
+      const wo = e?.schritt || schritt;
+      fehler.push({ name: datei.name, grund: fehlerText(e, wo), technik: technikText(e, wo) });
     }
   }
 
@@ -482,12 +490,21 @@ async function importieren(dateien) {
   importErgebnis({ neu, doppelt, fehler, ohneText, gesamt: liste.length });
 }
 
-function fehlerText(e) {
+function fehlerText(e, schritt) {
   const n = e?.name || "";
   if (n === "PasswordException") return "Das PDF ist mit einem Passwort geschützt.";
   if (n === "InvalidPDFException") return "Die Datei ist kein gültiges PDF.";
   if (n === "QuotaExceededError") return "Der Speicher auf dem Gerät ist voll.";
+  if (schritt === "Datei lesen") return "Die Datei ließ sich nicht öffnen. Liegt sie nur in der Cloud? Dann in der Dateien-App einmal antippen und erneut hinzufügen.";
+  if (schritt === "Speichern") return "Die Datei konnte nicht in der App gespeichert werden.";
   return "Die Datei konnte nicht gelesen werden.";
+}
+
+/** Kurze technische Angabe für die Fehlersuche (Schritt, Fehlerart, Meldung). */
+function technikText(e, schritt) {
+  const name = e?.name || (typeof e === "object" ? e?.constructor?.name : "") || "Fehler";
+  const text = String(e?.message ?? e ?? "").replace(/\s+/g, " ").slice(0, 220);
+  return `${schritt} – ${name}${text ? `: ${text}` : ""}`;
 }
 
 function importBlatt(gesamt) {
@@ -523,7 +540,9 @@ function importErgebnis({ neu, doppelt, fehler, ohneText }) {
   }
   if (fehler.length) {
     teile.push(h("h3", null, "Nicht eingelesen"),
-      h("ul", { class: "schritte" }, fehler.map((f) => h("li", null, `${f.name}: ${f.grund}`))));
+      h("ul", { class: "schritte" }, fehler.map((f) => h("li", null, `${f.name}: ${f.grund}`,
+        f.technik ? h("span", { class: "technik" }, f.technik) : null))),
+      h("div", { class: "technik technik-abstand" }, `App-Version ${APP_VERSION}, ${navigator.userAgent}`));
   }
   if (!neu && !doppelt && !fehler.length) teile.push(h("p", null, "Es wurde nichts eingelesen."));
   if (neu === 1 && !doppelt && !fehler.length && !ohneText.length) {
@@ -814,7 +833,8 @@ async function betrachterOeffnen(id, seite = 1, { trefferAufSeite = 0 } = {}) {
       b.id = id;
       const eintragPdf = await db.holen("pdfs", id);
       if (!eintragPdf) throw new Error("PDF fehlt");
-      b.pdf = await pdfOeffnen(new Uint8Array(await eintragPdf.blob.arrayBuffer()));
+      const daten = eintragPdf.daten || (eintragPdf.blob && (await eintragPdf.blob.arrayBuffer()));
+      b.pdf = await pdfOeffnen(new Uint8Array(daten));
     }
     b.seiten = b.pdf.numPages;
     let pos = b.liste.findIndex((t) => t.seite === seite && t.k === trefferAufSeite);
@@ -826,7 +846,7 @@ async function betrachterOeffnen(id, seite = 1, { trefferAufSeite = 0 } = {}) {
   } catch (e) {
     console.error(e);
     ladeAnzeige(false);
-    meldung("Das PDF konnte nicht geöffnet werden.");
+    meldung(`Das PDF konnte nicht geöffnet werden. (${technikText(e, "Öffnen")})`);
   }
 }
 

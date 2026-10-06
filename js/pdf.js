@@ -3,6 +3,22 @@
 import { seiteAufbereiten, falte } from "./text.js";
 
 const BASIS = new URL("../vendor/pdfjs/", import.meta.url).href;
+
+// pdf.js nutzt Response.bytes() (Safari erst ab Version 18) – für ältere Geräte nachrüsten
+if (typeof Response !== "undefined" && typeof Response.prototype.bytes !== "function") {
+  Response.prototype.bytes = async function bytes() {
+    return new Uint8Array(await this.arrayBuffer());
+  };
+}
+
+/** Hängt an einen Fehler an, in welchem Arbeitsschritt er auftrat. */
+function mitSchritt(e, schritt) {
+  const fehler = e instanceof Error || (e && typeof e === "object") ? e : new Error(String(e));
+  try {
+    if (!fehler.schritt) fehler.schritt = schritt;
+  } catch { /* eingefrorenes Objekt */ }
+  return fehler;
+}
 let bibliothek = null;
 let arbeiter = null;
 
@@ -54,31 +70,39 @@ export async function sha256(buffer) {
  * Ergebnis: { seiten: [Anzeigetext je Seite], titel }
  */
 export async function textAuslesen(buffer, fortschritt) {
-  // pdf.js übernimmt den Buffer – Kopie geben, damit das Original (für den Hash/Blob) heil bleibt
-  const pdf = await pdfOeffnen(new Uint8Array(buffer.slice(0)));
+  let schritt = "PDF-Programm laden";
   try {
-    const seiten = [];
-    for (let n = 1; n <= pdf.numPages; n++) {
-      const seite = await pdf.getPage(n);
-      const inhalt = await seite.getTextContent();
-      seiten.push(seiteAufbereiten(inhalt.items).text);
-      seite.cleanup();
-      fortschritt?.(n, pdf.numPages);
-    }
-    let titel = "";
+    await pdfjs();
+    schritt = "PDF öffnen";
+    // pdf.js übernimmt den Buffer – Kopie geben, damit das Original (für Prüfsumme und Speichern) heil bleibt
+    const pdf = await pdfOeffnen(new Uint8Array(buffer.slice(0)));
     try {
-      const meta = await pdf.getMetadata();
-      titel = (meta?.info?.Title || "").trim();
-    } catch { /* ohne Metadaten */ }
-    return { seiten, titel };
-  } finally {
-    await pdfSchliessen(pdf);
+      schritt = "Text auslesen";
+      const seiten = [];
+      for (let n = 1; n <= pdf.numPages; n++) {
+        const seite = await pdf.getPage(n);
+        const inhalt = await seite.getTextContent();
+        seiten.push(seiteAufbereiten(inhalt.items).text);
+        seite.cleanup();
+        fortschritt?.(n, pdf.numPages);
+      }
+      let titel = "";
+      try {
+        const meta = await pdf.getMetadata();
+        titel = (meta?.info?.Title || "").trim();
+      } catch { /* ohne Metadaten */ }
+      return { seiten, titel };
+    } finally {
+      await pdfSchliessen(pdf);
+    }
+  } catch (e) {
+    throw mitSchritt(e, schritt);
   }
 }
 
 // ---------- Anzeige einer Seite mit markierten Fundstellen ----------
 
-const MAX_PIXEL = 12_000_000; // iOS begrenzt die Größe einer Zeichenfläche
+const MAX_PIXEL = 12000000; // iOS begrenzt die Größe einer Zeichenfläche
 
 /**
  * Zeichnet eine Seite in `huelle` (leeres Element) und markiert die Fundstellen.
