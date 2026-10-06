@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3157E0"/>
+      <stop offset="1" stop-color="#1F3DB8"/>
+    </linearGradient>
+    <!-- Landolt-Ring: Außendurchmesser 5d, Innendurchmesser 3d, Lücke d (DIN EN ISO 8596), Lücke nach rechts oben -->
+    <mask id="luecke" maskUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024">
+      <rect width="1024" height="1024" fill="#fff"/>
+      <rect x="440" y="390" width="320" height="100" fill="#000" transform="rotate(-45 440 440)"/>
+    </mask>
+  </defs>
+  <rect width="1024" height="1024" fill="url(#bg)"/>
+  <g>
+    <circle cx="440" cy="440" r="200" fill="none" stroke="#fff" stroke-width="100" mask="url(#luecke)"/>
+    <!-- Griff -->
+    <line x1="640" y1="640" x2="800" y2="800" stroke="#fff" stroke-width="104" stroke-linecap="round"/>
+    <!-- Textzeilen, eine davon markiert (Fluorescein) -->
+    <rect x="352" y="372" width="160" height="30" rx="15" fill="#fff" fill-opacity=".55"/>
+    <rect x="340" y="425" width="200" height="40" rx="10" fill="#D8F65A"/>
+    <rect x="352" y="488" width="116" height="30" rx="15" fill="#fff" fill-opacity=".55"/>
+  </g>
+</svg>

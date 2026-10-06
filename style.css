@@ -1,0 +1,853 @@
+/* Leitlinien – Gestaltung
+   Kobaltblau wie der Spaltlampenfilter, Fluorescein-Gelbgrün ausschließlich für Fundstellen.
+   Serifenschrift = Text aus den Leitlinien, serifenlose Systemschrift = Bedienung der App. */
+
+:root {
+  color-scheme: light dark;
+  --papier: #f3f6fa;
+  --flaeche: #ffffff;
+  --flaeche-2: #e9eef5;
+  --tinte: #13203d;
+  --tinte-2: #4d5a78;
+  --tinte-3: #7c88a3;
+  --linie: #dce2ec;
+  --kobalt: #2747c9;
+  --kobalt-druck: #1c369e;
+  --kobalt-hell: #e6ebfb;
+  --fluo: #d8f65a;
+  --fluo-tinte: #13203d;
+  --bernstein: #a65400;
+  --bernstein-hell: #fff0da;
+  --gefahr: #b42318;
+  --betrachter-grund: #283149;
+  --schatten: 0 1px 2px rgb(19 32 61 / 0.12), 0 8px 24px rgb(19 32 61 / 0.14);
+
+  --ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, "Segoe UI", Roboto, sans-serif;
+  --dokument: ui-serif, "New York", "Iowan Old Style", "Charter", Georgia, serif;
+
+  --oben: env(safe-area-inset-top, 0px);
+  --unten: env(safe-area-inset-bottom, 0px);
+  --links: env(safe-area-inset-left, 0px);
+  --rechts: env(safe-area-inset-right, 0px);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --papier: #0d1530;
+    --flaeche: #152042;
+    --flaeche-2: #1b2850;
+    --tinte: #e8edf8;
+    --tinte-2: #a9b4ce;
+    --tinte-3: #7d89a8;
+    --linie: #263258;
+    --kobalt: #8fa8ff;
+    --kobalt-druck: #b3c3ff;
+    --kobalt-hell: #1e2c5c;
+    --fluo: #cff24c;
+    --fluo-tinte: #0d1530;
+    --bernstein: #ffbf66;
+    --bernstein-hell: #3a2a10;
+    --gefahr: #ff8a80;
+    --betrachter-grund: #070c1d;
+    --schatten: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px rgb(0 0 0 / 0.45);
+  }
+}
+
+* { box-sizing: border-box; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--papier);
+  color: var(--tinte);
+  font: 17px/1.35 var(--ui);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overscroll-behavior-y: none;
+}
+
+button, input { font: inherit; color: inherit; }
+
+button {
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+a { color: var(--kobalt); }
+
+:focus-visible {
+  outline: 3px solid var(--kobalt);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.sr {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}
+
+[hidden] { display: none !important; }
+
+/* ---------- Kopf und Suche ---------- */
+
+.oben {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: color-mix(in srgb, var(--papier) 92%, transparent);
+  -webkit-backdrop-filter: saturate(1.6) blur(14px);
+  backdrop-filter: saturate(1.6) blur(14px);
+  padding: calc(var(--oben) + 6px) calc(var(--rechts) + 16px) 10px calc(var(--links) + 16px);
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s;
+}
+
+.oben.gescrollt { border-bottom-color: var(--linie); }
+
+.kopf {
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 44px;
+}
+
+.marke {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.marke h1 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.landolt { width: 26px; height: 26px; color: var(--kobalt); flex: none; }
+.lupenmarke { width: 28px; height: 28px; flex: none; }
+
+.symbolknopf {
+  width: 44px;
+  height: 44px;
+  margin-right: -10px;
+  border: 0;
+  background: none;
+  color: var(--kobalt);
+  display: grid;
+  place-items: center;
+  border-radius: 22px;
+}
+
+.symbolknopf svg { width: 24px; height: 24px; }
+.symbolknopf:active { background: var(--kobalt-hell); }
+
+.suche {
+  max-width: 720px;
+  margin: 6px auto 0;
+  position: relative;
+}
+
+.suche .lupe {
+  position: absolute;
+  left: 13px;
+  top: 50%;
+  width: 20px;
+  height: 20px;
+  margin-top: -10px;
+  color: var(--tinte-3);
+  pointer-events: none;
+}
+
+#suchfeld {
+  width: 100%;
+  height: 48px;
+  padding: 0 44px 0 42px;
+  border: 1px solid var(--linie);
+  border-radius: 14px;
+  background: var(--flaeche);
+  font-size: 17px;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+#suchfeld::placeholder { color: var(--tinte-3); }
+#suchfeld:focus { border-color: var(--kobalt); box-shadow: 0 0 0 3px var(--kobalt-hell); }
+#suchfeld::-webkit-search-cancel-button { display: none; }
+
+#such-leeren {
+  position: absolute;
+  right: 4px;
+  top: 4px;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  background: none;
+  color: var(--tinte-3);
+  border-radius: 20px;
+  display: grid;
+  place-items: center;
+}
+
+#such-leeren svg { width: 20px; height: 20px; }
+
+/* ---------- Inhalt ---------- */
+
+main {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 4px calc(var(--rechts) + 16px) calc(var(--unten) + 110px) calc(var(--links) + 16px);
+}
+
+.abschnitt { margin-top: 22px; }
+
+.abschnitt-kopf {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 6px;
+}
+
+.abschnitt-kopf h2 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--tinte-2);
+}
+
+.textknopf {
+  border: 0;
+  background: none;
+  color: var(--kobalt);
+  font-size: 15px;
+  padding: 8px 0 8px 8px;
+}
+
+.liste {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--linie);
+}
+
+.liste > li { border-bottom: 1px solid var(--linie); }
+
+.zeile {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.zeile-haupt {
+  flex: 1;
+  min-width: 0;
+  display: block;
+  text-align: left;
+  border: 0;
+  background: none;
+  padding: 12px 0;
+  text-decoration: none;
+  color: inherit;
+}
+
+.zeile-haupt:active { opacity: 0.6; }
+
+.dok-titel {
+  display: block;
+  font-family: var(--dokument);
+  font-size: 17px;
+  line-height: 1.3;
+  font-weight: 500;
+}
+
+.zeile-unter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  margin-top: 4px;
+  font-size: 14px;
+  color: var(--tinte-2);
+}
+
+.info-knopf {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  margin-right: -10px;
+  border: 0;
+  background: none;
+  color: var(--kobalt);
+  border-radius: 22px;
+  display: grid;
+  place-items: center;
+}
+
+.info-knopf svg { width: 22px; height: 22px; }
+.info-knopf:active { background: var(--kobalt-hell); }
+
+/* Status */
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.status::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.status-ruhig { color: var(--tinte-2); font-weight: 500; }
+.status-ruhig::before { width: 10px; height: 6px; border-radius: 0; background: none; border: solid currentColor; border-width: 0 0 2px 2px; transform: translateY(-2px) rotate(-45deg); }
+.status-warnung { color: var(--bernstein); background: var(--bernstein-hell); padding: 4px 8px 4px 7px; border-radius: 6px; }
+.status-hinweis { color: var(--bernstein); }
+.status-neutral { color: var(--tinte-2); }
+.status-leise { color: var(--tinte-3); font-weight: 500; }
+.status-leise::before { background: none; border: 1.5px solid currentColor; width: 5px; height: 5px; }
+
+/* Hinweisband für neue Versionen */
+
+.band {
+  margin-top: 14px;
+  background: var(--bernstein-hell);
+  color: var(--tinte);
+  border-radius: 14px;
+  padding: 14px 16px 6px;
+}
+
+.band h2 {
+  margin: 0 0 2px;
+  font-size: 17px;
+  font-weight: 650;
+  color: var(--bernstein);
+}
+
+.band p { margin: 0 0 6px; font-size: 15px; color: var(--tinte-2); }
+.band .liste { border-top-color: color-mix(in srgb, var(--bernstein) 25%, transparent); }
+.band .liste > li { border-bottom: 0; }
+.band .liste > li + li { border-top: 1px solid color-mix(in srgb, var(--bernstein) 25%, transparent); }
+
+.band-dezent {
+  background: var(--flaeche);
+  border: 1px solid var(--linie);
+}
+
+.band-dezent h2 { color: var(--tinte); }
+
+/* Leerer Zustand */
+
+.leer {
+  margin: 48px auto 0;
+  max-width: 420px;
+  text-align: center;
+}
+
+.leer .lupenmarke { width: 72px; height: 72px; }
+
+.leer h2 {
+  margin: 18px 0 8px;
+  font-size: 22px;
+  font-weight: 650;
+}
+
+.leer p {
+  margin: 0 auto 10px;
+  color: var(--tinte-2);
+  font-size: 16px;
+  max-width: 34ch;
+}
+
+/* Fußzeile */
+
+.fuss {
+  margin-top: 28px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--tinte-3);
+}
+
+.fuss p { margin: 0 0 4px; }
+
+/* ---------- Schaltflächen ---------- */
+
+.knopf {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 18px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--kobalt);
+  color: #fff;
+  font-weight: 600;
+  font-size: 16px;
+  text-decoration: none;
+}
+
+.knopf:active { background: var(--kobalt-druck); }
+
+@media (prefers-color-scheme: dark) {
+  .knopf { color: #0d1530; }
+}
+
+.knopf-zweit {
+  background: var(--kobalt-hell);
+  color: var(--kobalt);
+}
+
+.knopf-zweit:active { background: var(--flaeche-2); }
+
+.knopf-gefahr { background: none; color: var(--gefahr); border: 1px solid currentColor; }
+.knopf-breit { width: 100%; }
+
+.knopfreihe {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.knopfreihe > * { flex: 1 1 auto; }
+
+.hinzufuegen {
+  white-space: nowrap;
+  position: fixed;
+  z-index: 20;
+  left: 50%;
+  bottom: calc(var(--unten) + 16px);
+  transform: translateX(-50%);
+  box-shadow: var(--schatten);
+  border-radius: 26px;
+  min-height: 52px;
+  padding: 12px 22px 12px 18px;
+}
+
+.hinzufuegen svg { width: 20px; height: 20px; }
+
+/* ---------- Suchergebnisse ---------- */
+
+.ergebnis-kopf {
+  margin: 14px 0 4px;
+  font-size: 14px;
+  color: var(--tinte-2);
+}
+
+.ergebnis-kopf strong { color: var(--tinte); font-weight: 600; }
+
+.gruppe { margin-top: 18px; }
+
+.gruppe-kopf {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--linie);
+}
+
+.gruppe-kopf .dok-titel { font-size: 18px; font-weight: 600; }
+.gruppe-kopf .anzahl { flex: none; font-size: 13px; color: var(--tinte-3); font-variant-numeric: tabular-nums; }
+
+.treffer {
+  display: grid;
+  grid-template-columns: 3.2em 1fr;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 0;
+  border: 0;
+  border-bottom: 1px solid var(--linie);
+  background: none;
+  text-align: left;
+}
+
+.treffer:active { background: var(--flaeche-2); }
+
+.treffer .seitenzahl {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--kobalt);
+  font-variant-numeric: tabular-nums;
+  padding-top: 2px;
+}
+
+.treffer .stelle {
+  font-family: var(--dokument);
+  font-size: 15.5px;
+  line-height: 1.45;
+  color: var(--tinte);
+  overflow-wrap: anywhere;
+}
+
+mark {
+  background: var(--fluo);
+  color: var(--fluo-tinte);
+  border-radius: 3px;
+  padding: 0 2px;
+  margin: 0 -1px;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+.mehr-seiten {
+  border: 0;
+  background: none;
+  color: var(--kobalt);
+  font-size: 15px;
+  padding: 10px 0;
+}
+
+.hinweis-text {
+  font-size: 15px;
+  color: var(--tinte-2);
+  margin: 10px 0;
+}
+
+/* ---------- Blatt (Dialog von unten) ---------- */
+
+.blatt-grund {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: rgb(7 12 29 / 0.38);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: einblenden 0.18s ease-out;
+}
+
+.blatt {
+  width: 100%;
+  max-width: 720px;
+  max-height: calc(100dvh - var(--oben) - 24px);
+  display: flex;
+  flex-direction: column;
+  background: var(--papier);
+  border-radius: 18px 18px 0 0;
+  box-shadow: var(--schatten);
+  animation: hochschieben 0.24s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.blatt-kopf {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px 10px 20px;
+  border-bottom: 1px solid var(--linie);
+}
+
+.blatt-kopf h2 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 650;
+  min-width: 0;
+}
+
+.blatt-kopf .textknopf { font-weight: 600; flex: none; }
+
+.blatt-inhalt {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 6px 20px calc(var(--unten) + 22px);
+}
+
+.blatt-inhalt h3 {
+  margin: 20px 0 6px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--tinte-2);
+}
+
+.blatt-inhalt p { margin: 8px 0; font-size: 16px; line-height: 1.45; }
+
+.blatt-titel {
+  font-family: var(--dokument);
+  font-size: 21px;
+  line-height: 1.25;
+  font-weight: 600;
+  margin: 12px 0 10px;
+}
+
+.daten {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 14px;
+  margin: 8px 0;
+  font-size: 15px;
+}
+
+.daten dt { color: var(--tinte-2); }
+.daten dd { margin: 0; overflow-wrap: anywhere; }
+
+.schritte {
+  margin: 8px 0;
+  padding-left: 1.3em;
+  font-size: 16px;
+  line-height: 1.45;
+}
+
+.schritte li { margin: 6px 0; }
+
+.filter {
+  width: 100%;
+  height: 42px;
+  margin: 10px 0 4px;
+  padding: 0 12px;
+  border: 1px solid var(--linie);
+  border-radius: 10px;
+  background: var(--flaeche);
+  font-size: 16px;
+}
+
+.fortschritt {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--flaeche-2);
+  overflow: hidden;
+  margin: 14px 0 8px;
+}
+
+.fortschritt > div {
+  height: 100%;
+  width: 0;
+  background: var(--kobalt);
+  border-radius: 3px;
+  transition: width 0.2s;
+}
+
+.import-status {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.import-status .landolt { width: 40px; height: 40px; }
+.import-status .datei { font-size: 15px; color: var(--tinte-2); overflow-wrap: anywhere; }
+
+/* Der Landolt-Ring dreht die Lücke wie beim Sehtest – nur während gearbeitet wird */
+.dreht .landolt-luecke-gruppe {
+  transform-origin: 12px 12px;
+  animation: sehtest 2.4s steps(8) infinite;
+}
+
+@keyframes sehtest { to { transform: rotate(360deg); } }
+@keyframes einblenden { from { opacity: 0; } }
+@keyframes hochschieben { from { transform: translateY(40px); opacity: 0.4; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .dreht .landolt-luecke-gruppe, .blatt, .blatt-grund { animation: none; }
+}
+
+/* ---------- Meldung ---------- */
+
+.meldung {
+  position: fixed;
+  z-index: 60;
+  left: 50%;
+  bottom: calc(var(--unten) + 84px);
+  transform: translateX(-50%);
+  max-width: min(92vw, 520px);
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: var(--tinte);
+  color: var(--papier);
+  font-size: 15px;
+  box-shadow: var(--schatten);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+
+.meldung.sichtbar { opacity: 1; }
+
+/* ---------- Betrachter ---------- */
+
+.betrachter {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  background: var(--betrachter-grund);
+  color: #fff;
+}
+
+.b-kopf, .b-leiste {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: color-mix(in srgb, var(--betrachter-grund) 88%, #fff 12%);
+}
+
+.b-kopf {
+  padding: calc(var(--oben) + 2px) calc(var(--rechts) + 6px) 2px calc(var(--links) + 6px);
+  min-height: 48px;
+}
+
+.b-leiste {
+  justify-content: space-between;
+  padding: 4px calc(var(--rechts) + 8px) calc(var(--unten) + 4px) calc(var(--links) + 8px);
+}
+
+.b-titel {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.b-titel span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.b-titel .b-unter { font-size: 12px; font-weight: 500; opacity: 0.7; font-variant-numeric: tabular-nums; }
+
+.b-knopf {
+  min-width: 44px;
+  height: 44px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 16px;
+}
+
+.b-knopf svg { width: 22px; height: 22px; }
+.b-knopf:active { background: rgb(255 255 255 / 0.12); }
+.b-knopf:disabled { opacity: 0.3; }
+
+.b-gruppe { display: flex; align-items: center; gap: 2px; }
+
+.b-zahl {
+  min-width: 4.6em;
+  text-align: center;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.9;
+}
+
+.b-treffer .b-zahl { color: var(--fluo); opacity: 1; font-weight: 600; }
+
+.b-flaeche {
+  flex: 1;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x pan-y;
+  overscroll-behavior: contain;
+  padding: 12px 8px 24px;
+  position: relative;
+}
+
+.b-flaeche .b-seite {
+  margin: 0 auto;
+  position: relative;
+  background: #fff;
+  box-shadow: 0 2px 12px rgb(0 0 0 / 0.35);
+  transform-origin: 0 0;
+}
+
+.b-laden {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+.b-laden .landolt { width: 44px; height: 44px; color: rgb(255 255 255 / 0.6); }
+
+.pdf-leinwand { display: block; }
+
+/* pdf.js-Textebene (aus pdf_viewer.css übernommen, ohne Verschachtelung) */
+.b-seite {
+  --user-unit: 1;
+  --total-scale-factor: calc(var(--scale-factor, 1) * var(--user-unit));
+  --scale-round-x: 1px;
+  --scale-round-y: 1px;
+}
+
+.textLayer {
+  position: absolute;
+  text-align: initial;
+  inset: 0;
+  overflow: clip;
+  opacity: 1;
+  line-height: 1;
+  -webkit-text-size-adjust: none;
+  text-size-adjust: none;
+  forced-color-adjust: none;
+  transform-origin: 0 0;
+  caret-color: CanvasText;
+  z-index: 0;
+  --min-font-size: 1;
+  --text-scale-factor: calc(var(--total-scale-factor) * var(--min-font-size));
+  --min-font-size-inv: calc(1 / var(--min-font-size));
+}
+
+.textLayer span, .textLayer br {
+  color: transparent;
+  position: absolute;
+  white-space: pre;
+  cursor: text;
+  transform-origin: 0% 0%;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+.textLayer > :not(.markedContent),
+.textLayer .markedContent span:not(.markedContent) {
+  z-index: 1;
+  --font-height: 0;
+  font-size: calc(var(--text-scale-factor) * var(--font-height));
+  --scale-x: 1;
+  --rotate: 0deg;
+  transform: rotate(var(--rotate)) scaleX(var(--scale-x)) scale(var(--min-font-size-inv));
+}
+
+.textLayer .markedContent { display: contents; }
+.textLayer ::selection { background: rgb(39 71 201 / 0.28); color: transparent; }
+
+/* Die ganze Textebene wird multipliziert: Markierungen färben nur den Papiergrund,
+   die schwarze Schrift der PDF-Seite bleibt darunter voll lesbar. */
+.textLayer { mix-blend-mode: multiply; }
+
+.textLayer mark {
+  color: transparent;
+  background: #e8fb9e;
+  border-radius: 2px;
+  padding: 1px 0;
+  margin: 0;
+}
+
+.textLayer mark.aktuell {
+  background: #d2f53f;
+  box-shadow: 0 0 0 2px #2747c9;
+}
