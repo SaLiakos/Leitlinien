@@ -1,0 +1,45 @@
+name: Versionsprüfung
+
+on:
+  schedule:
+    - cron: "23 4 * * *" # täglich gegen 6:23 Uhr (Sommerzeit) bzw. 5:23 Uhr (Winterzeit)
+  workflow_dispatch: # „Run workflow“ startet die Prüfung sofort
+
+permissions:
+  contents: write
+
+concurrency:
+  group: versionspruefung
+  cancel-in-progress: false
+
+jobs:
+  pruefen:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Werkzeuge installieren
+        run: |
+          python3 -m venv .venv
+          .venv/bin/pip install --quiet -r pruefung/requirements.txt
+          .venv/bin/python -m playwright install --with-deps chromium
+
+      - name: Leitlinien von DOG und BVA prüfen
+        run: .venv/bin/python pruefung/pruefen.py
+
+      - name: Versionsliste speichern
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add versions.json
+          if git diff --cached --quiet; then
+            echo "Keine Änderung"
+            exit 0
+          fi
+          git commit -m "Versionsprüfung $(date -u +%Y-%m-%d)"
+          for versuch in 1 2 3; do
+            git pull --rebase --quiet && git push && exit 0
+            sleep 10
+          done
+          exit 1
